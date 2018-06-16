@@ -56,5 +56,5 @@ void IRDA::detect(unsigned long now) {
 
 bool IRDA::compare(
   unsigned long diff, unsigned long target) {
-  return diff > target * 0.85 && diff < target * 1.15;
+  return diff > target * 0.80 && diff < target * 1.2;
 }
