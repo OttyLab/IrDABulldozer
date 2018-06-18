@@ -1,7 +1,7 @@
 #include "irda.h"
 #include <stdio.h>
 
-//#define DEBUG
+// #define DEBUG
 
 #ifdef DEBUG
 #include <SoftwareSerial.h>
@@ -72,7 +72,7 @@ void setup() {
   // PWM
   pinMode(1, OUTPUT);
   TCCR1 = 0x63;
-  OCR1A = 64;
+  OCR1A = 00;
 
   // Interrupt
   cli();
@@ -103,7 +103,6 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  int voltage = analogRead(3);
 #ifdef DEBUG
   static int cnt = 0;
   static int prev = 0;
@@ -114,12 +113,11 @@ void loop() {
   prev = value;
 
   if (cnt++ % 100000 == 0) {
-    char buf[100];
-    sprintf(buf, "voltage=%d", voltage);
-    Serial.println(buf);
+    calc_pwm(analogRead(3));
   }
   delayMicroseconds(1);
 #else
+  OCR1A = calc_pwm(analogRead(3));
   delay(1000);
 #endif
 }
@@ -132,3 +130,13 @@ ISR(PCINT0_vect) {
   }
 }
 #endif
+
+unsigned char calc_pwm(unsigned int half_voltage) {
+   unsigned char pwm = (unsigned char) (3.0  / (half_voltage / (float)1024 * 2 * 5) * 256);
+#ifdef DEBUG
+   char buf[100];
+   sprintf(buf, "half_voltage=%d, pwm=%d", half_voltage, pwm);
+   Serial.println(buf);
+#endif
+  return pwm;
+}
